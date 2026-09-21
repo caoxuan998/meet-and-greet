@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>见面倒计时 · 还有多久见到 TA</title>
+  <meta name="description" content="异地恋见面倒计时，数着日子等见面。可装手机/电脑桌面。">
+  <meta name="theme-color" content="#FF8FAB">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="见面倒计时">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+/* ========== 设计令牌 · 粉色为主 ========== */
+:root {
+  --bg: #FFF1F6;
+  --bg-soft: #FCE3EC;
+  --bg-card: #FFFFFF;
+  --bg-overlay: rgba(255, 241, 246, 0.92);
+
+  --ink: #4A2E3A;
+  --ink-2: #7A4A5C;
+  --ink-soft: #A8768A;
+  --ink-faint: #C9A6B4;
+
+  --line: #F6D6E0;
+  --line-soft: #FCE3EC;
+  --line-strong: #F2C4D2;
+
+  --pink: #FF8FAB;
+  --pink-deep: #F26D92;
+  --pink-light: #FFC2D1;
+  --pink-soft: #FFE9F0;
+
+  --gold: #E0A36B;
+  --gold-soft: #F6E4D2;
+
+  --accent: #FF8FAB;
+  --accent-2: #F26D92;
+
+  --sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --serif: 'Noto Serif SC', 'Cormorant Garamond', 'Songti SC', 'STSong', serif;
+  --eng: 'Cormorant Garamond', 'Noto Serif SC', serif;
+
+  --r-sm: 6px;
+  --r: 12px;
+  --r-lg: 20px;
+
+  --shadow-sm: 0 2px 8px rgba(242, 109, 146, 0.10);
+  --shadow-md: 0 6px 24px rgba(242, 109, 146, 0.14);
+  --shadow-lg: 0 12px 40px rgba(242, 109, 146, 0.18);
+
+  --maxw: 480px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(at 12% 0%, rgba(255, 143, 171, 0.14) 0%, transparent 50%),
+    radial-gradient(at 88% 100%, rgba(242, 109, 146, 0.12) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+.hidden { display: none !important; }
+.center { text-align: center; }
+.serif { font-family: var(--serif); }
+.eng { font-family: var(--eng); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 22px; border: none; border-radius: 999px; cursor: pointer;
+  font-family: var(--sans); font-size: 14px; font-weight: 600;
+  transition: all .25s ease; text-decoration: none;
+}
+.btn-primary { background: linear-gradient(135deg, var(--pink) 0%, var(--pink-deep) 100%); color: #fff; box-shadow: var(--shadow-sm); }
+.btn-primary:active { transform: translateY(1px); box-shadow: none; }
+.btn-ghost { background: transparent; color: var(--ink-2); border: 1px solid var(--line-strong); }
+.btn-ghost:active { background: var(--pink-soft); }
+.btn-danger { background: #E2707F; color: #fff; }
+.btn-danger:active { transform: translateY(1px); opacity: .9; }
+.btn-icon {
+  width: 38px; height: 38px; padding: 0; border-radius: 50%;
+  background: var(--bg-card); border: 1px solid var(--line);
+  color: var(--ink-2); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+.btn-icon:active { background: var(--pink-soft); }
+.btn-block { width: 100%; padding: 14px; font-size: 15px; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.eyebrow { font-family: var(--eng); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--pink-deep); font-weight: 600; }
+.muted { color: var(--ink-soft); }
+.faint { color: var(--ink-faint); }
+.small { font-size: 13px; }
+
+.divider { height: 1px; background: linear-gradient(90deg, transparent, var(--line-strong), transparent); margin: 20px 0; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes popIn { 0% { opacity:0; transform: scale(.95);} 100%{opacity:1;transform:scale(1);} }
+@keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.screen { animation: fadeIn .4s cubic-bezier(.22,.61,.36,1); }
+
+#toast {
+  position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%);
+  background: rgba(74, 46, 58, 0.95); color: #fff; padding: 11px 20px; border-radius: 999px;
+  font-size: 13px; z-index: 999; opacity: 0; transition: opacity .25s; pointer-events: none;
+  max-width: 80%; text-align: center;
+}
+#toast.show { opacity: 1; }
+
+/* ========== 布局 ========== */
+.app-wrap { max-width: var(--maxw); margin: 0 auto; min-height: 100vh; padding-bottom: 140px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 40; max-width: var(--maxw);
+  background: var(--bg-overlay); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  padding: 14px 20px; padding-top: max(14px, env(safe-area-inset-top));
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.topbar .tb-title { flex: 1; font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--ink); letter-spacing: 0.02em; }
+.topbar .tb-title small { display: block; font-family: var(--eng); font-size: 10px; letter-spacing: 0.3em; color: var(--pink-deep); font-weight: 500; margin-top: 2px; text-transform: uppercase; }
+
+/* ========== 首页 ========== */
+.home-inner { padding: 0 20px; }
+
+.hero { text-align: center; padding: 36px 0 28px; }
+.hero .eyebrow { margin-bottom: 12px; }
+.hero h1 {
+  font-family: var(--serif); font-size: 28px; font-weight: 600;
+  line-height: 1.3; color: var(--ink); margin-bottom: 10px; letter-spacing: 0.03em;
+}
+.hero .sub { font-family: var(--serif); font-size: 14px; color: var(--ink-soft); letter-spacing: 0.05em; }
+.hero .sub::before, .hero .sub::after { content: '·'; margin: 0 8px; color: var(--pink-deep); }
+
+.hero-stat { display: flex; justify-content: center; gap: 24px; margin: 24px 0 28px; }
+.hs-item { text-align: center; }
+.hs-num { font-family: var(--eng); font-size: 32px; font-weight: 600; color: var(--pink-deep); line-height: 1; }
+.hs-label { font-size: 11px; color: var(--ink-soft); margin-top: 4px; letter-spacing: 0.1em; }
+
+.list-section { margin-bottom: 24px; }
+.section-title {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title h2 {
+  font-family: var(--serif); font-size: 16px; font-weight: 600;
+  color: var(--ink); display: flex; align-items: center; gap: 8px;
+}
+.section-title h2::before { content: ''; width: 14px; height: 1px; background: var(--pink-deep); }
+.section-title .count { font-family: var(--eng); font-size: 13px; color: var(--ink-faint); }
+
+/* 倒计时卡片 */
+.countdown-list { display: flex; flex-direction: column; gap: 12px; }
+.countdown-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all .2s;
+}
+.countdown-card:active { transform: scale(.99); box-shadow: var(--shadow-md); }
+.countdown-card.passed { background: linear-gradient(135deg, var(--pink-soft) 0%, var(--gold-soft) 100%); border-color: var(--pink-light); }
+.countdown-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: linear-gradient(180deg, var(--pink) 0%, var(--pink-deep) 100%);
+}
+.countdown-card.passed::before { background: linear-gradient(180deg, var(--pink-deep) 0%, var(--gold) 100%); }
+.cc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.cc-title { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.cc-date { font-size: 12px; color: var(--ink-soft); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.cc-actions { display: flex; gap: 6px; }
+.cc-mini-btn { background: transparent; border: none; cursor: pointer; color: var(--ink-faint); padding: 4px; font-size: 14px; }
+.cc-mini-btn:active { color: var(--pink-deep); }
+
+.cc-countdown { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.cc-days { font-family: var(--eng); font-size: 36px; font-weight: 600; color: var(--pink-deep); line-height: 1; font-variant-numeric: tabular-nums; }
+.cc-days.passed-num { color: var(--pink-deep); }
+.cc-unit { font-size: 14px; color: var(--ink-soft); font-weight: 500; }
+.cc-detail { display: flex; gap: 14px; font-family: var(--eng); font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.cd-item { display: flex; align-items: baseline; gap: 3px; }
+.cd-num { font-weight: 600; color: var(--ink-2); }
+
+.cc-progress { margin-top: 12px; height: 3px; background: var(--line-soft); border-radius: 2px; overflow: hidden; position: relative; }
+.cc-progress-fill { height: 100%; background: linear-gradient(90deg, var(--pink-light), var(--pink-deep)); border-radius: 2px; transition: width .5s ease; }
+
+.fab {
+  position: fixed; bottom: 84px; right: 24px; z-index: 30;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink) 0%, var(--pink-deep) 100%);
+  color: #fff; border: none; font-size: 28px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-lg);
+  transition: all .2s;
+}
+.fab:active { transform: scale(.95); }
+
+.empty-state { text-align: center; padding: 60px 24px; }
+.empty-state .em-icon {
+  width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%;
+  background: var(--pink-soft); display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 28px; color: var(--pink-deep);
+}
+.empty-state .em-title { font-family: var(--serif); font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+.empty-state .em-sub { font-size: 13px; color: var(--ink-soft); margin-bottom: 20px; line-height: 1.7; }
+
+/* ========== 模态框 ========== */
+.modal-mask {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(74, 46, 58, 0.5); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn .2s;
+}
+.modal-sheet {
+  width: 100%; max-width: var(--maxw);
+  background: var(--bg-card);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
+  max-height: 90vh; overflow-y: auto;
+  animation: popIn .3s cubic-bezier(.22,.61,.36,1);
+}
+.modal-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--line-strong); margin: 0 auto 16px; }
+.modal-title { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.modal-subtitle { font-family: var(--eng); font-size: 12px; letter-spacing: 0.2em; color: var(--pink-deep); text-transform: uppercase; margin-bottom: 20px; }
+
+.form-field { margin-bottom: 16px; }
+.form-label { font-size: 12px; color: var(--ink-soft); font-weight: 600; margin-bottom: 8px; display: block; letter-spacing: 0.05em; }
+.form-input {
+  width: 100%; padding: 12px 14px;
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: var(--r); font-family: var(--sans); font-size: 15px;
+  color: var(--ink); transition: all .15s;
+}
+.form-input:focus { outline: none; border-color: var(--pink); background: var(--bg-card); }
+.form-input::placeholder { color: var(--ink-faint); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.modal-actions button { flex: 1; }
+
+/* ========== 详情页 ========== */
+.detail-page { padding: 0 20px 100px; }
+.detail-hero { text-align: center; padding: 32px 0 28px; }
+.detail-hero .dh-eyebrow { font-family: var(--eng); font-size: 12px; letter-spacing: 0.3em; color: var(--pink-deep); text-transform: uppercase; margin-bottom: 12px; font-weight: 600; }
+.detail-hero .dh-title { font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 8px; }
+.detail-hero .dh-date { font-family: var(--eng); font-size: 14px; color: var(--ink-soft); letter-spacing: 0.1em; }
+
+.days-big {
+  text-align: center; padding: 32px 20px;
+  background: linear-gradient(135deg, var(--pink-soft) 0%, var(--gold-soft) 100%);
+  border-radius: var(--r-lg); margin-bottom: 20px;
+  border: 1px solid var(--pink-light);
+}
+.db-num { font-family: var(--eng); font-size: 80px; font-weight: 600; color: var(--pink-deep); line-height: 1; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.db-label { font-family: var(--serif); font-size: 16px; color: var(--ink-soft); letter-spacing: 0.1em; }
+.db-status { font-family: var(--eng); font-size: 14px; color: var(--pink-deep); margin-top: 8px; letter-spacing: 0.05em; font-weight: 600; }
+
+.time-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+.tb-cell { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 8px; text-align: center; }
+.tb-num { font-family: var(--eng); font-size: 24px; font-weight: 600; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.tb-label { font-size: 11px; color: var(--ink-soft); margin-top: 4px; letter-spacing: 0.1em; }
+
+.detail-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; margin-bottom: 16px; }
+.dc-title { font-family: var(--serif); font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.dc-title::before { content: ''; width: 12px; height: 1px; background: var(--pink-deep); }
+.dc-body { font-size: 14px; color: var(--ink-2); line-height: 1.85; }
+.dc-body p { margin-bottom: 8px; }
+.dc-body p:last-child { margin-bottom: 0; }
+
+.quotes { list-style: none; padding: 0; }
+.quotes li {
+  font-family: var(--serif); font-size: 13px; color: var(--ink-2);
+  padding: 8px 0; border-bottom: 1px solid var(--line-soft);
+  font-style: italic; line-height: 1.7;
+}
+.quotes li:last-child { border-bottom: none; }
+.quotes li::before { content: '「'; color: var(--pink-deep); margin-right: 4px; }
+.quotes li::after { content: '」'; color: var(--pink-deep); margin-left: 4px; }
+
+/* 安装提示 */
+.install-banner {
+  position: fixed; bottom: 90px; left: 16px; right: 16px;
+  max-width: 448px; margin: 0 auto;
+  background: var(--bg-card); border: 1px solid var(--pink-light);
+  border-radius: var(--r); padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  animation: fadeIn .3s;
+}
+.ib-text { flex: 1; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.ib-text strong { color: var(--ink); font-weight: 600; }
+.ib-close { background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 18px; padding: 4px; }
+.ib-btn { background: var(--pink); color: #fff; border: none; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+/* ========== 页面切换 ========== */
+.app-page { display: none; }
+.app-page.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="app-wrap">
+    <!-- 首页 -->
+    <div id="page-home" class="app-page active">
+      <div class="topbar">
+        <div class="tb-title">
+          见面倒计时
+          <small>Next Meeting</small>
+        </div>
+      </div>
+
+      <div class="home-inner">
+        <div class="hero">
+          <div class="eyebrow">COUNTING DAYS TO SEE YOU</div>
+          <h1>还有多久<br>见到 TA</h1>
+          <div class="sub">输入下次见面的日子 · 一天天数着过</div>
+        </div>
+
+        <div class="hero-stat" id="heroStat">
+          <div class="hs-item">
+            <div class="hs-num" id="statCount">0</div>
+            <div class="hs-label">MEETING PLANS</div>
+          </div>
+        </div>
+
+        <div class="list-section">
+          <div class="section-title">
+            <h2>即将见面</h2>
+            <span class="count" id="upcomingCount">0</span>
+          </div>
+          <div id="upcomingList" class="countdown-list"></div>
+        </div>
+
+        <div class="list-section">
+          <div class="section-title">
+            <h2>已经见过</h2>
+            <span class="count" id="passedCount">0</span>
+          </div>
+          <div id="passedList" class="countdown-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 详情页 -->
+    <div id="page-detail" class="app-page">
+      <div class="topbar">
+        <button class="btn-icon" id="detailBack" aria-label="返回">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L4 7L9 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="tb-title">见面详情</div>
+        <button class="btn-icon" id="detailShare" aria-label="分享">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11 5L13.5 2.5M13.5 2.5H10M13.5 2.5V6M11 11L13.5 13.5M13.5 13.5H10M13.5 13.5V10M5 11L2.5 13.5M2.5 13.5H6M2.5 13.5V10M5 5L2.5 2.5M2.5 2.5H6M2.5 2.5V6M8 8C9.10457 8 10 7.10457 10 6C10 4.89543 9.10457 4 8 4C6.89543 4 6 4.89543 6 6C6 7.10457 6.89543 8 8 8ZM8 8V13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="detail-page" id="detailPage"></div>
+    </div>
+
+    <!-- 悬浮添加按钮 -->
+    <button class="fab" id="addBtn" aria-label="添加">+</button>
+
+    <!-- 编辑模态框 -->
+    <div id="editModal" class="modal-mask hidden">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-title" id="modalTitle">添加见面计划</div>
+        <div class="modal-subtitle">Add a Meeting Day</div>
+
+        <div class="form-field">
+          <label class="form-label">叫什么</label>
+          <input type="text" class="form-input" id="inputName" placeholder="例如：五一见面 / 国庆去TA的城市" maxlength="20">
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">见面日期</label>
+            <input type="date" class="form-input" id="inputDate">
+          </div>
+          <div class="form-field">
+            <label class="form-label">类型</label>
+            <select class="form-input" id="inputType">
+              <option value="countdown">下次见面</option>
+              <option value="trip">一起旅行</option>
+              <option value="holiday">节假日相聚</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">备注（可选）</label>
+          <input type="text" class="form-input" id="inputNote" placeholder="例如：那天想去吃那家店" maxlength="50">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" id="modalCancel">取消</button>
+          <button class="btn btn-primary" id="modalSave">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="confirmModal" class="modal-mask hidden" style="z-index: 200;">
+      <div class="modal-sheet" style="max-width: 320px; text-align: center;">
+        <div class="modal-handle"></div>
+        <div class="modal-title" id="confirmTitle">确定要删除吗？</div>
+        <div class="modal-subtitle" id="confirmSub">Delete this plan?</div>
+        <div id="confirmDesc" style="color: var(--ink-soft); font-size: 14px; margin: 12px 0 24px;">删除后无法恢复</div>
+        <div class="modal-actions" style="justify-content: center;">
+          <button class="btn btn-ghost" id="confirmCancel">取消</button>
+          <button class="btn btn-danger" id="confirmOk">删除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分享卡片画布 -->
+    <canvas id="shareCanvas" style="display:none;"></canvas>
+  </div>
+
+  <script>
+/* ========== 颜色主题（粉系） ========== */
+const COLORS = [
+  { key: 'pink',     main: '#FF8FAB', soft: '#FFE9F0', label: '樱粉' },
+  { key: 'rose',     main: '#F26D92', soft: '#FBD9E2', label: '玫粉' },
+  { key: 'coral',    main: '#FF9E80', soft: '#FFE6DC', label: '蜜桃' },
+  { key: 'lavender', main: '#C9A0DC', soft: '#EFE2F6', label: '丁香' },
+  { key: 'gold',     main: '#E0A36B', soft: '#F6E4D2', label: '暖金' },
+  { key: 'blush',    main: '#FFB3C6', soft: '#FFE3EC', label: '淡粉' }
+];
+
+/* ========== 存储管理 ========== */
+const STORAGE_KEY = 'meet:items:v1';
+const INSTALL_KEY = 'meet:install:dismissed';
+
+function newId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function loadItems() {
+  let list = [];
+  try { const raw = localStorage.getItem(STORAGE_KEY); list = raw ? JSON.parse(raw) : []; }
+  catch (e) { list = []; }
+  if (!Array.isArray(list)) list = [];
+
+  let dirty = false;
+  const seen = new Set();
+  const out = [];
+  for (const it of list) {
+    if (!it || typeof it !== 'object') { dirty = true; continue; }
+    if (!it.date) { dirty = true; continue; }
+
+    const rawId = (it.id === undefined || it.id === null) ? '' : String(it.id).trim();
+    let id = (rawId === '' || rawId === 'undefined' || rawId === 'null' || rawId === 'NaN') ? newId() : rawId;
+    if (seen.has(id)) id = newId();
+    if (rawId !== id) dirty = true;
+
+    seen.add(id);
+    out.push({ ...it, id, name: it.name || '未命名', date: it.date, color: it.color || 'pink' });
+  }
+  if (dirty) saveItems(out);
+  return out;
+}
+function saveItems(items) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch (e) {}
+}
+
+/* ========== 通用工具 ========== */
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+let toastTimer = null;
+function toast(msg, ms = 1800) {
+  let el = document.getElementById('toast');
+  if (!el) { el = document.createElement('div'); el.id = 'toast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+const $ = (id) => document.getElementById(id);
+let currentPageId = 'page-home';
+
+/* ========== 时间计算 ========== */
+function daysBetween(date1, date2) {
+  const d1 = new Date(date1); d1.setHours(0,0,0,0);
+  const d2 = new Date(date2); d2.setHours(0,0,0,0);
+  return Math.round((d2 - d1) / 86400000);
+}
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}年${m}月${day}日`;
+}
+
+/* ========== 首页渲染 ========== */
+function renderHome() {
+  const items = loadItems();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const upcoming = [];
+  const passed = [];
+  for (const item of items) {
+    const days = daysBetween(today, item.date);
+    if (days >= 0) upcoming.push({ ...item, days });
+    else passed.push({ ...item, days: Math.abs(days) });
+  }
+  upcoming.sort((a, b) => a.days - b.days);
+  passed.sort((a, b) => a.days - b.days);
+
+  document.getElementById('statCount').textContent = items.length;
+
+  const upcomingList = document.getElementById('upcomingList');
+  document.getElementById('upcomingCount').textContent = upcoming.length;
+  if (upcoming.length === 0) {
+    upcomingList.innerHTML = `
+      <div class="empty-state">
+        <div class="em-icon">+</div>
+        <div class="em-title">还没有见面计划</div>
+        <div class="em-sub">点右下角 + 添加下次见面的日子<br>每天打开都能看到还差几天</div>
+        <button class="btn btn-primary" onclick="showAddModal()">添加见面计划</button>
+      </div>`;
+  } else {
+    upcomingList.innerHTML = upcoming.map(item => renderCard(item, false)).join('');
+  }
+
+  const passedList = document.getElementById('passedList');
+  document.getElementById('passedCount').textContent = passed.length;
+  if (passed.length === 0) {
+    passedList.innerHTML = '';
+  } else {
+    passedList.innerHTML = passed.map(item => renderCard(item, true)).join('');
+  }
+
+  document.querySelectorAll('.countdown-card').forEach(el => {
+    el.onclick = (e) => {
+      if (e.target.closest('.cc-mini-btn')) return;
+      window.location.hash = '#detail/' + el.dataset.id;
+    };
+  });
+  document.querySelectorAll('.cc-delete').forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); e.preventDefault(); showDeleteConfirm(btn.dataset.id); };
+  });
+  document.querySelectorAll('.cc-edit').forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); showEditModal(btn.dataset.id); };
+  });
+}
+
+function renderCard(item, passed) {
+  const color = COLORS.find(c => c.key === item.color) || COLORS[0];
+  const dateStr = formatDate(item.date);
+
+  let countdownHtml = '';
+  if (passed) {
+    const years = Math.floor(item.days / 365);
+    const months = Math.floor((item.days % 365) / 30);
+    const days = item.days % 30;
+    let breakdown = '';
+    if (years > 0) breakdown += `<div class="cd-item"><span class="cd-num">${years}</span>年</div>`;
+    if (months > 0 || years > 0) breakdown += `<div class="cd-item"><span class="cd-num">${months}</span>月</div>`;
+    breakdown += `<div class="cd-item"><span class="cd-num">${days}</span>天</div>`;
+    countdownHtml = `
+      <div class="cc-countdown">
+        <div class="cc-days passed-num">${item.days}</div>
+        <div class="cc-unit">天前</div>
+      </div>
+      <div class="cc-detail">${breakdown}</div>`;
+  } else {
+    const days = item.days;
+    countdownHtml = `
+      <div class="cc-countdown">
+        <div class="cc-days">${days === 0 ? '今天' : days}</div>
+        <div class="cc-unit">${days === 0 ? '就要见到啦！' : '天后'}</div>
+      </div>
+      <div class="cc-progress"><div class="cc-progress-fill" style="width: ${calculateProgress(item.date)}%"></div></div>`;
+  }
+
+  return `
+    <div class="countdown-card ${passed ? 'passed' : ''}" data-id="${item.id}">
+      <div class="cc-header">
+        <div>
+          <div class="cc-title">${escapeHTML(item.name)}</div>
+          <div class="cc-date">${dateStr}${item.note ? ' · ' + escapeHTML(item.note) : ''}</div>
+        </div>
+        <div class="cc-actions">
+          <button class="cc-mini-btn cc-edit" data-id="${item.id}" aria-label="编辑">编辑</button>
+          <button class="cc-mini-btn cc-delete" data-id="${item.id}" aria-label="删除">删除</button>
+        </div>
+      </div>
+      ${countdownHtml}
+    </div>`;
+}
+
+function calculateProgress(targetDate) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(targetDate); target.setHours(0,0,0,0);
+  const days = (target - today) / 86400000;
+  if (days <= 0) return 100;
+  if (days >= 365) return 0;
+  return ((365 - days) / 365) * 100;
+}
+
+/* ========== 添加/编辑 ========== */
+let editingId = null;
+
+function showAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = '添加见面计划';
+  document.getElementById('inputName').value = '';
+  document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('inputType').value = 'countdown';
+  document.getElementById('inputNote').value = '';
+  document.getElementById('editModal').classList.remove('hidden');
+}
+function showEditModal(id) {
+  const item = loadItems().find(x => x.id === id);
+  if (!item) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = '编辑见面计划';
+  document.getElementById('inputName').value = item.name;
+  document.getElementById('inputDate').value = item.date;
+  document.getElementById('inputType').value = item.type || 'countdown';
+  document.getElementById('inputNote').value = item.note || '';
+  document.getElementById('editModal').classList.remove('hidden');
+}
+function hideModal() {
+  document.getElementById('editModal').classList.add('hidden');
+  editingId = null;
+}
+
+let confirmHandler = null;
+function showConfirm(opts) {
+  confirmHandler = (opts && typeof opts.onOk === 'function') ? opts.onOk : null;
+  const t = $('confirmTitle'), s = $('confirmSub'), d = $('confirmDesc'), ok = $('confirmOk');
+  if (t) t.textContent = (opts && opts.title) || '确定要删除吗？';
+  if (s) s.textContent = (opts && opts.subtitle) || 'Are you sure?';
+  if (d) d.textContent = (opts && opts.desc) || '删除后无法恢复';
+  if (ok) ok.textContent = (opts && opts.okText) || '删除';
+  $('confirmModal').classList.remove('hidden');
+}
+function hideConfirm() { confirmHandler = null; $('confirmModal').classList.add('hidden'); }
+function doConfirm() { const fn = confirmHandler; hideConfirm(); if (typeof fn === 'function') fn(); }
+function showDeleteConfirm(id) {
+  const hit = loadItems().find(x => String(x.id) === String(id));
+  const name = hit ? hit.name : '';
+  showConfirm({
+    title: '确定要删除吗？',
+    subtitle: 'Delete this plan?',
+    desc: (name ? '「' + name + '」' : '这条见面计划') + '删除后无法恢复',
+    onOk: () => deleteDay(id)
+  });
+}
+function deleteDay(id) {
+  const targetId = String(id);
+  const before = loadItems();
+  const items = before.filter(x => String(x.id) !== targetId);
+  saveItems(items);
+  renderHome();
+  toast(items.length < before.length ? '已删除' : '没有找到这条记录');
+  if (location.hash.indexOf('#detail/') === 0 && location.hash.indexOf(targetId) > 0) {
+    location.hash = '#home';
+  }
+}
+function saveModal() {
+  const nameEl = document.getElementById('inputName');
+  const dateEl = document.getElementById('inputDate');
+  const typeEl = document.getElementById('inputType');
+  const noteEl = document.getElementById('inputNote');
+  if (!nameEl || !dateEl) { toast('表单元素缺失，请刷新页面'); return; }
+
+  const name = nameEl.value.trim();
+  const date = dateEl.value;
+  const type = typeEl ? typeEl.value : 'countdown';
+  const note = noteEl ? noteEl.value.trim() : '';
+
+  if (!name) { toast('先写个名字吧'); return; }
+  if (!date) { toast('请选择见面日期'); return; }
+
+  const items = loadItems();
+  const color = COLORS[0].key; // 粉色为主，默认樱粉
+  if (editingId) {
+    const idx = items.findIndex(x => x.id === editingId);
+    if (idx >= 0) items[idx] = { ...items[idx], name, date, type, color, note };
+    else items.push({ id: newId(), name, date, type, color, note, created: Date.now() });
+  } else {
+    items.push({ id: newId(), name, date, type, color, note, created: Date.now() });
+  }
+  saveItems(items);
+  hideModal();
+  renderHome();
+  toast(editingId ? '已更新' : '已添加');
+}
+
+/* ========== 详情页 ========== */
+function renderDetail(id) {
+  const items = loadItems();
+  const item = items.find(x => x.id === id);
+  if (!item) { window.location.hash = '#home'; return; }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = daysBetween(today, item.date);
+  const passed = days < 0;
+  const absDays = Math.abs(days);
+
+  const color = COLORS.find(c => c.key === item.color) || COLORS[0];
+
+  let statusText = '';
+  let statusHtml = '';
+  if (days === 0) { statusText = '就是今天'; statusHtml = '<div class="db-status">TODAY · 今天就要见到啦</div>'; }
+  else if (passed) { statusText = '已经过去'; }
+  else { statusText = '还有'; }
+
+  const numDisplay = passed ? absDays : (days === 0 ? '今天' : days);
+
+  let breakdown = '';
+  if (passed) {
+    const years = Math.floor(absDays / 365);
+    const months = Math.floor((absDays % 365) / 30);
+    const remDays = absDays % 30;
+    breakdown = `
+      <div class="time-breakdown">
+        <div class="tb-cell"><div class="tb-num">${years}</div><div class="tb-label">YEARS</div></div>
+        <div class="tb-cell"><div class="tb-num">${months}</div><div class="tb-label">MONTHS</div></div>
+        <div class="tb-cell"><div class="tb-num">${remDays}</div><div class="tb-label">DAYS</div></div>
+        <div class="tb-cell"><div class="tb-num">${absDays}</div><div class="tb-label">TOTAL</div></div>
+      </div>`;
+  } else {
+    const months = Math.floor(days / 30);
+    const remDays = days % 30;
+    const weeks = Math.floor(days / 7);
+    breakdown = `
+      <div class="time-breakdown">
+        <div class="tb-cell"><div class="tb-num">${months}</div><div class="tb-label">MONTHS</div></div>
+        <div class="tb-cell"><div class="tb-num">${weeks}</div><div class="tb-label">WEEKS</div></div>
+        <div class="tb-cell"><div class="tb-num">${remDays}</div><div class="tb-label">DAYS</div></div>
+        <div class="tb-cell"><div class="tb-num">${days}</div><div class="tb-label">TOTAL</div></div>
+      </div>`;
+  }
+
+  const quotes = generateQuotes(days, passed);
+
+  const html = `
+    <div class="detail-hero">
+      <div class="dh-eyebrow">${passed ? 'A Meeting' : days === 0 ? 'Today' : 'Coming Up'}</div>
+      <div class="dh-title">${escapeHTML(item.name)}</div>
+      <div class="dh-date">${formatDate(item.date)}</div>
+    </div>
+
+    <div class="days-big">
+      <div class="db-num" style="color: ${color.main};">${numDisplay}</div>
+      <div class="db-label">${days === 0 ? '就要见到啦' : (passed ? '天前' : '天后')}</div>
+      ${statusHtml}
+    </div>
+
+    ${breakdown}
+
+    ${item.note ? `
+    <div class="detail-card">
+      <div class="dc-title">我们的备注</div>
+      <div class="dc-body">${escapeHTML(item.note)}</div>
+    </div>` : ''}
+
+    <div class="detail-card">
+      <div class="dc-title">${passed ? '那次见面' : '等见面的日子'}</div>
+      <ul class="quotes">
+        ${quotes.map(q => `<li>${escapeHTML(q)}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+
+  document.getElementById('detailPage').innerHTML = html;
+  document.getElementById('detailShare').onclick = () => generateShareCard(item, days, color);
+}
+
+function generateQuotes(days, passed) {
+  if (days === 0) {
+    return ['今天就要见到 TA 啦！', '记得给 TA 一个大大的拥抱', '终于不用隔着屏幕了'];
+  }
+  if (passed) {
+    return [`这次见面已经过去 ${Math.abs(days)} 天`, '那次见面真的好开心', '期待下一次相聚', '见面的日子，值得反复回味'];
+  }
+  if (days <= 7) {
+    return ['就在这周了！', '开始收拾行李准备出发', '马上就能抱到 TA 啦', '倒计时进入最后冲刺'];
+  }
+  if (days <= 30) {
+    return ['一个月以内就能见到啦', '倒计时进入冲刺阶段', '想想见面要一起做什么'];
+  }
+  if (days <= 100) {
+    return ['快了，时间在悄悄靠近', '每过一天，就离 TA 近一点', '见面清单可以列起来啦'];
+  }
+  return ['数着日子等见面', '等待见面的日子也甜', '那一天一定会来的', '见面的期待，撑过异地'];
+}
+
+/* ========== 分享卡片（粉色） ========== */
+function generateShareCard(item, days, color) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 750; canvas.height = 1334;
+  const ctx = canvas.getContext('2d');
+
+  const passed = days < 0;
+  const absDays = Math.abs(days);
+
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, 1334);
+  bgGrad.addColorStop(0, '#FFF1F6');
+  bgGrad.addColorStop(1, '#FCE3EC');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, 750, 1334);
+
+  ctx.fillStyle = 'rgba(255, 143, 171, 0.10)';
+  ctx.beginPath(); ctx.arc(650, 100, 200, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(242, 109, 146, 0.10)';
+  ctx.beginPath(); ctx.arc(100, 1200, 250, 0, Math.PI * 2); ctx.fill();
+
+  ctx.strokeStyle = color.main;
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(75, 120); ctx.lineTo(75, 180); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(675, 120); ctx.lineTo(675, 180); ctx.stroke();
+
+  ctx.font = '500 20px "Cormorant Garamond", serif';
+  ctx.fillStyle = color.main;
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '4px';
+  ctx.fillText('N E X T   M E E T I N G', 375, 150);
+
+  ctx.font = '600 36px "Noto Serif SC", serif';
+  ctx.fillStyle = '#4A2E3A';
+  ctx.fillText('还有多久见到 TA', 375, 220);
+
+  ctx.font = '18px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#A8768A';
+  ctx.fillText(item.name, 375, 270);
+
+  ctx.font = '500 16px "Cormorant Garamond", serif';
+  ctx.fillStyle = '#A8768A';
+  ctx.fillText(formatDate(item.date), 375, 310);
+
+  const numDisplay = passed ? absDays : (days === 0 ? 'TODAY' : days);
+  ctx.font = days === 0 ? '600 110px "Cormorant Garamond", serif' : '600 220px "Cormorant Garamond", serif';
+  ctx.fillStyle = color.main;
+  ctx.fillText(String(numDisplay), 375, 600);
+
+  ctx.font = '24px "Noto Serif SC", serif';
+  ctx.fillStyle = '#7A4A5C';
+  const unitText = days === 0 ? '就要见到啦' : (passed ? '天前' : '天后');
+  ctx.fillText(unitText, 375, 660);
+
+  ctx.strokeStyle = '#F2C4D2';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(200, 740); ctx.lineTo(550, 740); ctx.stroke();
+
+  ctx.font = '22px "Noto Serif SC", serif';
+  ctx.fillStyle = '#7A4A5C';
+  let quoteText = '';
+  if (days === 0) quoteText = '今天就要见到 TA 啦';
+  else if (passed) quoteText = '那次见面，真好';
+  else if (days <= 7) quoteText = '就在这周见面啦';
+  else if (days <= 100) quoteText = '时间在悄悄靠近';
+  else quoteText = '数着日子等见面';
+  ctx.fillText(`「 ${quoteText} 」`, 375, 810);
+
+  if (item.note) {
+    ctx.font = '18px "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#A8768A';
+    ctx.fillText(item.note, 375, 870);
+  }
+
+  ctx.font = '500 16px "Cormorant Garamond", serif';
+  ctx.fillStyle = '#F26D92';
+  ctx.fillText('OUR NEXT MEETING', 375, 1230);
+
+  ctx.font = '14px "Noto Sans SC", sans-serif';
+  ctx.fillStyle = '#C9A6B4';
+  ctx.fillText('一个链接，安装到手机桌面随时查看', 375, 1260);
+
+  showShareModal(canvas);
+}
+
+function showShareModal(canvas) {
+  const modal = document.createElement('div');
+  modal.className = 'modal-mask';
+  modal.innerHTML = `
+    <div class="modal-sheet" style="max-height: 95vh;">
+      <div class="modal-handle"></div>
+      <div class="modal-title">分享给 TA</div>
+      <div class="modal-subtitle">Long Press to Save</div>
+      <img src="${canvas.toDataURL('image/png')}" style="width: 100%; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(242, 109, 146, 0.15);">
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="dlBtn">下载图片</button>
+        <button class="btn btn-ghost" id="closeBtn">关闭</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('dlBtn').onclick = () => {
+    const link = document.createElement('a');
+    link.download = `见面倒计时-${new Date().getTime()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    toast('已保存到下载文件夹');
+  };
+  document.getElementById('closeBtn').onclick = () => modal.remove();
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+}
+
+/* ========== 路由 ========== */
+function showPage(id) {
+  ['page-home', 'page-detail'].forEach(x => {
+    const el = document.getElementById(x);
+    if (el) el.classList.toggle('active', x === id);
+  });
+  const fab = $('addBtn');
+  if (fab) fab.classList.toggle('hidden', id === 'page-detail');
+  currentPageId = id;
+}
+function route() {
+  const raw = location.hash.replace(/^#/, '') || 'home';
+  const parts = raw.split('/');
+  if (parts[0] === 'home') { showPage('page-home'); renderHome(); }
+  else if (parts[0] === 'detail' && parts[1]) { showPage('page-detail'); renderDetail(parts[1]); }
+  else { location.hash = '#home'; }
+}
+
+/* ========== 初始化 ========== */
+function init() {
+  try {
+    const addBtn = $('addBtn');
+    const detailBack = $('detailBack');
+    const modalCancel = $('modalCancel');
+    const modalSave = $('modalSave');
+    const editModal = $('editModal');
+
+    if (addBtn) addBtn.addEventListener('click', showAddModal);
+    if (detailBack) detailBack.addEventListener('click', () => location.hash = '#home');
+    if (modalCancel) modalCancel.addEventListener('click', hideModal);
+    if (modalSave) modalSave.addEventListener('click', saveModal);
+    if (editModal) editModal.addEventListener('click', (e) => { if (e.target.id === 'editModal') hideModal(); });
+
+    const confirmCancel = $('confirmCancel');
+    const confirmOk = $('confirmOk');
+    const confirmModal = $('confirmModal');
+    if (confirmCancel) confirmCancel.addEventListener('click', hideConfirm);
+    if (confirmOk) confirmOk.addEventListener('click', doConfirm);
+    if (confirmModal) confirmModal.addEventListener('click', (e) => { if (e.target.id === 'confirmModal') hideConfirm(); });
+
+    window.addEventListener('hashchange', route);
+    route();
+    renderHome();
+  } catch (err) {
+    console.error('[见面倒计时] init 失败:', err);
+    alert('初始化失败：' + err.message);
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js?v=2').catch(() => {});
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (reloaded) return;
+      reloaded = true;
+      window.location.reload();
+    });
+  }
+
+  window.__resetDays = function () { localStorage.removeItem(STORAGE_KEY); renderHome(); toast('已清空全部数据'); };
+
+  setupInstallPrompt();
+}
+
+/* ========== PWA 安装提示 ========== */
+let deferredPrompt = null;
+function setupInstallPrompt() {
+  if (localStorage.getItem(INSTALL_KEY) === 'yes') return;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallBanner();
+  });
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem(INSTALL_KEY, 'yes');
+    hideInstallBanner();
+  });
+  // 始终保留一个安装入口：部分环境不派发原生 prompt，也要能给出手动指引
+  setTimeout(() => { if (localStorage.getItem(INSTALL_KEY) !== 'yes') showInstallBanner(); }, 1500);
+}
+function showInstallBanner() {
+  if (document.getElementById('installBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'installBanner';
+  banner.className = 'install-banner';
+  banner.innerHTML = `
+    <div class="ib-text"><strong>添加到主屏幕</strong><br>像 APP 一样随时打开</div>
+    <button class="ib-btn" id="installBtn">安装</button>
+    <button class="ib-close" id="closeBanner">×</button>`;
+  document.body.appendChild(banner);
+  document.getElementById('installBtn').onclick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') localStorage.setItem(INSTALL_KEY, 'yes');
+      deferredPrompt = null;
+      hideInstallBanner();
+    } else {
+      showManualGuide();
+    }
+  };
+  document.getElementById('closeBanner').onclick = () => { localStorage.setItem(INSTALL_KEY, 'yes'); hideInstallBanner(); };
+}
+function hideInstallBanner() { const b = document.getElementById('installBanner'); if (b) b.remove(); }
+
+function showManualGuide() {
+  const ua = navigator.userAgent;
+  const isIOS = /iP(ad|hone|od)/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const mask = document.createElement('div');
+  mask.id = 'installGuideMask';
+  mask.style.cssText = 'position:fixed;inset:0;background:rgba(255,143,171,.30);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:24px;';
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border:3px solid #FF8FAB;border-radius:22px;max-width:340px;width:100%;padding:24px 22px;box-shadow:0 12px 40px rgba(200,90,120,.25);';
+  const steps = isIOS
+    ? '用 <b>Safari</b> 打开本页 → 点底部「分享」按钮 → 选「添加到主屏幕」即可。'
+    : '用 <b>Chrome / Edge</b> 打开本页，点地址栏右侧的「安装 📥」图标，或右上角 ⋮ 菜单 →「安装应用」。也可把标签页直接拖到桌面。';
+  box.innerHTML = '<div style="font-size:20px;font-weight:800;color:#E75480;margin-bottom:10px;">装到桌面指引</div>'
+    + '<div style="font-size:15px;line-height:1.7;color:#444;">' + steps + '</div>'
+    + '<div style="font-size:13px;color:#999;margin-top:10px;">若地址栏没有安装图标，请先强刷一次（Ctrl+Shift+R / Mac 上 Cmd+Shift+R）。</div>'
+    + '<button id="guideOk" style="margin-top:16px;width:100%;padding:12px;border:0;border-radius:14px;background:linear-gradient(135deg,#FF8FAB,#F26D92);color:#fff;font-size:16px;font-weight:700;cursor:pointer;">知道了</button>';
+  mask.appendChild(box);
+  document.body.appendChild(mask);
+  mask.onclick = function (e) { if (e.target === mask) mask.remove(); };
+  box.querySelector('#guideOk').onclick = function () { mask.remove(); };
+}
+
+document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
