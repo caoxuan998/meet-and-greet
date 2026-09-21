@@ -1,0 +1,16 @@
+{
+  "name": "见面倒计时 · 还有多久见到 TA",
+  "short_name": "见面倒计时",
+  "description": "异地恋见面倒计时，数着日子等见面。可装手机/电脑桌面。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF1F6",
+  "theme_color": "#FF8FAB",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
